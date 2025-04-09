@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { User } from './schemas/user.schema';
+import { User } from '../users/schemas/user.schema';
 import { Token, TokenType } from './schemas/token.schema';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';

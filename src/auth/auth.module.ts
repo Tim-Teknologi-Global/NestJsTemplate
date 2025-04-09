@@ -5,9 +5,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { User, UserSchema } from './schemas/user.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
 import { Token, TokenSchema } from './schemas/token.schema';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtStrategy } from '../utils/strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -20,9 +20,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION'),
-        },
       }),
       inject: [ConfigService],
     }),

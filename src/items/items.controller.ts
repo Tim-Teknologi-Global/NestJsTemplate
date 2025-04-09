@@ -8,13 +8,20 @@ import {
   Delete,
   UseGuards,
   Req,
+  UsePipes,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
-import { CreateItemDto } from './dto/create-item.dto';
-import { UpdateItemDto } from './dto/update-item.dto';
-import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from '../utils/guard/jwt-auth.guard';
+import { JoiValidationPipe } from '../utils/pipes/validation.pipes';
 import { Request } from 'express';
-import { User } from '../auth/schemas/user.schema';
+import {
+  createItemSchema,
+  deleteItemSchema,
+  getItemByIdSchema,
+  getItemSchema,
+  updateItemSchema,
+} from './item.validator';
+import { User } from '../users/schemas/user.schema';
 @Controller('items')
 @UseGuards(JwtAuthGuard)
 export class ItemsController {
@@ -25,7 +32,15 @@ export class ItemsController {
    * @returns {Item}
    */
   @Post()
-  create(@Body() createItemDto: CreateItemDto) {
+  @UsePipes(new JoiValidationPipe(createItemSchema))
+  create(
+    @Body()
+    createItemDto: {
+      name: string;
+      description: string;
+      amount: number;
+    },
+  ) {
     return this.itemsService.create(createItemDto);
   }
   /**
@@ -34,6 +49,7 @@ export class ItemsController {
    * @returns {Item[]}
    */
   @Get()
+  @UsePipes(new JoiValidationPipe(getItemSchema))
   findAll(@Req() request: Request) {
     // this is how you get the user from the request
     const user = request.user as User;
@@ -45,6 +61,7 @@ export class ItemsController {
    * @returns {Item}
    */
   @Get(':id')
+  @UsePipes(new JoiValidationPipe(getItemByIdSchema))
   findOne(@Param('id') id: string) {
     return this.itemsService.findOne(id);
   }
@@ -55,7 +72,16 @@ export class ItemsController {
    * @returns {Item}
    */
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
+  @UsePipes(new JoiValidationPipe(updateItemSchema))
+  update(
+    @Param('id') id: string,
+    @Body()
+    updateItemDto: {
+      name?: string;
+      description?: string;
+      amount?: number;
+    },
+  ) {
     return this.itemsService.update(id, updateItemDto);
   }
   /**
@@ -64,6 +90,7 @@ export class ItemsController {
    * @returns {Item}
    */
   @Delete(':id')
+  @UsePipes(new JoiValidationPipe(deleteItemSchema))
   remove(@Param('id') id: string) {
     return this.itemsService.remove(id);
   }

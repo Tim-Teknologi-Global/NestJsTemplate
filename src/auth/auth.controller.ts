@@ -5,11 +5,18 @@ import {
   UnauthorizedException,
   UseGuards,
   Req,
+  UsePipes,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guard/jwt-auth.guard';
-import { User } from './schemas/user.schema';
+import { JwtAuthGuard } from '../utils/guard/jwt-auth.guard';
+import { User } from '../users/schemas/user.schema';
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+} from './auth.validator';
+import { JoiValidationPipe } from '../utils/pipes/validation.pipes';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -19,6 +26,7 @@ export class AuthController {
    * @returns {access_token: string, refresh_token: string}
    */
   @Post('register')
+  @UsePipes(new JoiValidationPipe(registerSchema))
   async register(
     @Body() body: { email: string; password: string; username?: string },
   ) {
@@ -30,6 +38,7 @@ export class AuthController {
    * @returns {access_token: string, refresh_token: string}
    */
   @Post('login')
+  @UsePipes(new JoiValidationPipe(loginSchema))
   async login(@Body() body: { email: string; password: string }) {
     return this.authService.login(body.email, body.password);
   }
@@ -50,6 +59,7 @@ export class AuthController {
    * @returns {access_token: string, refresh_token: string}
    */
   @Post('refresh')
+  @UsePipes(new JoiValidationPipe(refreshTokenSchema))
   async refreshToken(@Body() body: { refresh_token: string }) {
     return this.authService.refreshToken(body.refresh_token);
   }

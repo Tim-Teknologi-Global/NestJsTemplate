@@ -1,15 +1,17 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { Item } from "./schemas/item.schema";
-import { CreateItemDto } from "./dto/create-item.dto";
-import { UpdateItemDto } from "./dto/update-item.dto";
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Item } from './schemas/item.schema';
 
 @Injectable()
 export class ItemsService {
   constructor(@InjectModel(Item.name) private itemModel: Model<Item>) {}
 
-  async create(createItemDto: CreateItemDto): Promise<Item> {
+  async create(createItemDto: {
+    name: string;
+    description: string;
+    amount: number;
+  }): Promise<Item> {
     const createdItem = new this.itemModel(createItemDto);
     return createdItem.save();
   }
@@ -22,7 +24,14 @@ export class ItemsService {
     return this.itemModel.findById(id).exec();
   }
 
-  async update(id: string, updateItemDto: UpdateItemDto): Promise<Item> {
+  async update(
+    id: string,
+    updateItemDto: {
+      name?: string;
+      description?: string;
+      amount?: number;
+    },
+  ): Promise<Item> {
     return this.itemModel
       .findByIdAndUpdate(id, updateItemDto, { new: true })
       .exec();
